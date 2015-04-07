@@ -229,15 +229,15 @@ multiple solutions.
 def where2(m, data, lvl=0, up=None, verbose=True):
   node = o(val=None,_up=up,_kids=[])
   def tooDeep():
-		return lvl > The.what.depthMax
-  def tooFew() : return len(data) < m.minLeafSize
+		return lvl > m.settings.depthMax
+  def tooFew() : return len(data) < m.settings.minSize
   def show(suffix):
     if The.what.verbose:
       print(The.what.b4*lvl,len(data),
             suffix,' ; ',id(node) % 1000,sep='')
   node.median_row = data[len(data)//2]
   node.variance = variance(m, data)
-  if ((not hasattr(m, "max_variance")) or m.max_variance < node.variance):
+  if (not hasattr(m, "max_variance") or m.max_variance < node.variance):
     m.max_variance = node.variance
   node.val = data
   if tooDeep() or tooFew():
@@ -285,7 +285,7 @@ the other, then ignore the other pole.
 def maybePrune(m,lvl,west,east):
   "Usually, go left then right, unless dominated."
   goLeft, goRight = True,True # default
-  if  The.what.prune and lvl >= The.what.depthMin:
+  if  m.settings.prune and lvl >= m.settings.depthMin:
     sw = scores(m, west)
     se = scores(m, east)
     if abs(sw - se) > The.wriggle: # big enough to consider
@@ -339,27 +339,24 @@ def scores(m,it):
     it.scored = True
   return it.score
 
-def launchWhere2(m, rows=None, verbose=True, minSize = None):
+def launchWhere2(m, settings=None, rows=None, verbose=True):
   seed(1)
   told=N()
-  if (not rows):
+  if not rows:
     rows = m._rows
   for r in rows:
     s =  scores(m,r)
     told += s
   global The
   The=defaults()
-  The.what.update(verbose = True,
-               #minSize = int(max(len(rows)**0.5,8)),
-               #minSize = 4,
+  The.what.update(verbose = True)
+  if settings is None:
+    m.settings = configs(
                minSize = int(len(rows)**0.5),
                prune   = False,
-               wriggle = 0.3*told.sd(),
-               leafThreshold = 4)
-  if minSize :
-    m.minLeafSize = minSize
+               wriggle = 0.3*told.sd())
   else :
-    m.minLeafSize = The.what.minSize
+    m.settings = settings
   return where2(m, rows,verbose = verbose)
 
 """
@@ -484,8 +481,8 @@ def _where(m=MODEL):
     told += s
   global The
   The=defaults()
-  The.what.update(verbose = True,
-               minSize = max(len(m._rows)**0.5,8),
+  The.what.update(verbose = True)
+  m.settings = configs(minSize = max(len(m._rows)**0.5,8),
                prune   = False,
                wriggle = 0.3*told.sd())
   tree = where2(m, m._rows)
@@ -496,6 +493,4 @@ def _where(m=MODEL):
 
 """
 if __name__ == '__main__':
-  m=MODEL()
-  m.update(settings=configs())
-  print(m.settings)
+  launchWhere2(MODEL())
