@@ -24,6 +24,9 @@ class o:
     if len(txt) > 60:
       show=map(lambda x: '\t'+x+'\n',show)
     return '{'+' '.join(show)+'}'
+  def __getitem__(i, item):
+    return i.has().get(item)
+
 
 class E:
   def __init__(i,txt):

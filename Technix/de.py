@@ -30,6 +30,9 @@ def split_data(rows):
     return rows[:size//3], rows[size//3:-size//3], rows[-size//3:]
 
 
+def trim(one, low, high):
+  return max(low, min(one, high))
+
 def between(low, high, prec=3):
   if isinstance(low, float):
     return round(random.uniform(low, high), prec)
@@ -51,16 +54,20 @@ def MRE(model, inp, classifier, predictor):
 
 class Candidate(o):
   id = 0
-  def __init__(i, de):
-    i.id = Candidate.id =  Candidate.id+1
-    i.objectives, i.score = None, None
-    i.generate(de.settings)
-    i.evaluate(de)
+  def __init__(i, de, cand= None):
+    if cand:
+      i.id = cand.id
+      i.objectives = cand.objectives
+      i.score = None
+    else :
+      i.id = Candidate.id =  Candidate.id+1
+      i.generate(de.settings)
+      i.evaluate(de)
 
   def generate(i, settings):
     obj = o()
     for index, key in enumerate(settings.params):
-      obj.__dict__[key] = between(settings.min[index], settings.max[index])
+      obj.has()[key] = between(settings.min[index], settings.max[index])
     i.objectives = obj
 
   def evaluate(i, de):
@@ -91,8 +98,46 @@ class DE(o):
     pass
 
   def run(i):
+    lives = i.config.lives
     for _ in range(i.config.max):
+      if lives == 0: break
+      updated = i.update()
+      if not updated: lives -= 1
+
+  def update(i):
+    nextGen = []
+    for point in i.frontier:
+      mutated = i.mutate(point)
+      if (mutated.score > point.score):
+        nextGen.append(mutated)
+      else:
+        nextGen.append(point)
       # TODO
-      pass
 
 
+  def mutate(i, point, prec=3):
+    mutated = Candidate(i, point)
+    two, three, four = i.threeMore(point)
+    obj2, obj3, obj4 = two.objectives, three.objectives, four.objectives
+    cf,f = i.settings.cf, i.settings.f
+    for i, (key, low, high) in enumerate(zip(i.settings.params,i.settings.max, i.settings.min)):
+      if random.random() > cf :
+        if isinstance(low, float):
+          extrapolated = trim(round(obj2[key] + f*(obj3[key] - obj4[key]), prec), low, high)
+        elif isinstance(low, bool):
+          extrapolated  = bool(random.getrandbits(1))
+        elif isinstance(low, int):
+          extrapolated =  trim(int(round(random.uniform(low, high))), low, high)
+        mutated.objectives.update(key, extrapolated)
+    mutated.evaluate(i)
+    return mutated
+
+  def threeMore(i, one):
+    seen = [one.id]
+    def oneMore(seen):
+      while True:
+        point = random.choice(i.frontier)
+        if point.id not in seen:
+          seen += [point.id]
+          return point
+    return oneMore(seen), oneMore(seen), oneMore(seen)
