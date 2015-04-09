@@ -17,6 +17,7 @@ import Technix.sdivUtil as sdivUtil
 ### Maths Stuff
 
 """
+CACHE_SIZE=128
 def gt(x,y): return x > y
 def lt(x,y): return x < y
 
@@ -76,13 +77,13 @@ class Cache:
     map(i.__iadd__,inits)
   def __iadd__(i,x):
     i.n += 1
-    if len(i.all) < The.cache.size: # if not full
+    if len(i.all) < CACHE_SIZE: # if not full
       i._has = None
       i.all += [x]               # then add
     else: # otherwise, maybe replace an old item
-      if random.random() <= The.cache.size/i.n:
+      if random.random() <= CACHE_SIZE/i.n:
         i._has=None
-        i.all[int(random.random()*The.cache.size)] = x
+        i.all[int(random.random()*CACHE_SIZE)] = x
     return i
   def has(i):
     if i._has == None:

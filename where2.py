@@ -140,7 +140,7 @@ Now we can define _furthest_:
 def furthest(m,i,all,
              init = 0,
              better = gt,
-						 what = lambda m:m.decisions):
+                         what = lambda m:m.decisions):
   "find which of all is furthest from 'i'"
   out,d= i,init
   for j in all:
@@ -229,7 +229,7 @@ multiple solutions.
 def where2(m, data, lvl=0, up=None, verbose=True):
   node = o(val=None,_up=up,_kids=[])
   def tooDeep():
-		return lvl > m.settings.depthMax
+        return lvl > m.settings.depthMax
   def tooFew() : return len(data) < m.settings.minSize
   def show(suffix):
     if The.what.verbose:
@@ -288,7 +288,7 @@ def maybePrune(m,lvl,west,east):
   if  m.settings.prune and lvl >= m.settings.depthMin:
     sw = scores(m, west)
     se = scores(m, east)
-    if abs(sw - se) > The.wriggle: # big enough to consider
+    if abs(sw - se) > m.settings.wriggle: # big enough to consider
       if se > sw: goLeft   = False   # no left
       if sw > se: goRight  = False   # no right
   return goLeft, goRight
@@ -339,22 +339,16 @@ def scores(m,it):
     it.scored = True
   return it.score
 
-def launchWhere2(m, settings=None, rows=None, verbose=True):
-  seed(1)
-  told=N()
+def launchWhere2(m, settings=None, rows=None, verbose=False):
   if not rows:
     rows = m._rows
-  for r in rows:
-    s =  scores(m,r)
-    told += s
   global The
   The=defaults()
-  The.what.update(verbose = True)
+  The.what.update(verbose = verbose)
   if settings is None:
     m.settings = configs(
                minSize = int(len(rows)**0.5),
-               prune   = False,
-               wriggle = 0.3*told.sd())
+               prune   = False)
   else :
     m.settings = settings
   return where2(m, rows,verbose = verbose)
@@ -432,6 +426,24 @@ def variance(m, rows):
     efforts.append(effort(m, row))
   return var(efforts)
 
+
+def predictPEEKING(model, tree, test):
+  eps = 0.000001
+  test_leaf = leaf(model, test, tree)
+  k = model.settings.neighbors
+  rows = test_leaf.val
+  if k > len(rows):
+    k = len(rows)
+  nearestN = closestN(model, k, test, rows)
+  if len(nearestN) == 1 :
+    return effort(model, nearestN[0][1])
+  else :
+    testEffort, sumWt = 0,0
+    for distance, row in nearestN[:k]:
+      testEffort += effort(model, row)/(distance+eps)
+      sumWt += 1/(distance + eps)
+    return testEffort/sumWt
+
 """
 ## Demo Code
 
@@ -493,4 +505,8 @@ def _where(m=MODEL):
 
 """
 if __name__ == '__main__':
-  launchWhere2(MODEL())
+  seed(1)
+  model = MODEL()
+  tree = launchWhere2(model)
+  model.settings.neighbors = 2
+  print(predictPEEKING(model, tree, model._rows[1]), model._rows[1].cells[23])

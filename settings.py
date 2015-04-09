@@ -64,11 +64,20 @@ def defaults(**d):
 
 def configs(**d):
   return o(
-    minSize  = 10,    # min leaf size
-    depthMin= 2,      # no pruning till this depth
-    depthMax= 10,     # max tree depth
-    wriggle = 0.2,    # min difference of 'better'
-    prune   = True
+    minSize   = 8,      # min leaf size
+    depthMin  = 2,      # no pruning till this depth
+    depthMax  = 10,     # max tree depth
+    wriggle   = 0.2,    # min difference of 'better'
+    prune     = True,   # If pruning should be performed
   ).update(**d)
+
+
+def peekSettings():
+    return o(
+        params   = ["minSize", "depthMin", "depthMax", "wriggle", "prune", "neighbors"],
+        defaults = [8,         2,          10,          0.2,       True,     2],
+        max      = [30,        6,          30,          0.5,       True,     6],
+        min      = [2,         2,          4,          0.01,       False,    2]
+    )
 
 The=None
