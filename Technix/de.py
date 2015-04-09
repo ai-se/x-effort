@@ -17,10 +17,10 @@ from Models.nasa93 import nasa93
 def DE_settings(**d):
     return o(
        max     = 100,  # number of repeats
-       np      = 100,  # number of candidates
+       np      = 30,  # number of candidates
        f       = 0.4, # extrapolate amount
        cf      = 0.3,  # prob of cross-over
-       epsilon = 0.01
+       lives   = 5
     ).update(**d)
 
 def split_data(rows):
@@ -29,13 +29,6 @@ def split_data(rows):
             #Train          #Tune                   #Test
     return rows[:size//3], rows[size//3:-size//3], rows[-size//3:]
 
-
-
-def score(de, candidate):
-  classifier = de.builder(de.model, candidate.objectives, de.train)
-  print(candidate.objectives)
-  mre = MRE(de.model, de.tune, classifier, de.predictor)
-  return mre
 
 def between(low, high, prec=3):
   if isinstance(low, float):
@@ -60,16 +53,19 @@ class Candidate(o):
   id = 0
   def __init__(i, de):
     i.id = Candidate.id =  Candidate.id+1
-    i.objectives = i.generate(de.settings)
-    i.score = score(de, i)
-    #TODO
+    i.objectives, i.score = None, None
+    i.generate(de.settings)
+    i.evaluate(de)
 
   def generate(i, settings):
     obj = o()
     for index, key in enumerate(settings.params):
       obj.__dict__[key] = between(settings.min[index], settings.max[index])
-    return obj
+    i.objectives = obj
 
+  def evaluate(i, de):
+    classifier = de.builder(de.model, i.objectives, de.train)
+    i.score = MRE(de.model, de.tune, classifier, de.predictor)
 
 class DE(o):
   "DE"
@@ -82,11 +78,21 @@ class DE(o):
     i.settings = settings
     i.train, i.tune, i.test = split_data(model._rows)
     i.config = DE_settings()
+    i.frontier = i.build()
 
-  def candidates(i):
-    # TODO build candidates
+  """
+  Build Frontier
+  """
+  def build(i):
+    return [ Candidate(i) for _ in i.config.np]
 
   def extrapolate(i):
-    # TODO extrapolate
+    #TODO extrapolate
+    pass
+
+  def run(i):
+    for _ in range(i.config.max):
+      # TODO
+      pass
 
 

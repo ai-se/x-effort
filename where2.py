@@ -84,7 +84,7 @@ belongs by comparing the projection of
 test node between the extreme nodes
 """
 def leaf(m,one,node):
-  if node._kids:
+  if node._kids and len(node._kids)==2:
     east = node.east
     west = node.west
     mid_cos = node.mid_cos
