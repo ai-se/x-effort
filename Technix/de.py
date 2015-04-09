@@ -17,10 +17,11 @@ from Models.nasa93 import nasa93
 def DE_settings(**d):
     return o(
        max     = 100,  # number of repeats
-       np      = 30,  # number of candidates
+       # credit to @WeiFoo
+       np      = 50,  # number of candidates
        f       = 0.4, # extrapolate amount
        cf      = 0.3,  # prob of cross-over
-       lives   = 5
+       lives   = 10
     ).update(**d)
 
 def split_data(rows):
@@ -74,6 +75,9 @@ class Candidate(o):
     classifier = de.builder(de.model, i.objectives, de.train)
     i.score = MRE(de.model, de.tune, classifier, de.predictor)
 
+  def __gt__(i, j):
+    return i.score > j.score
+
 class DE(o):
   "DE"
   id = 0
@@ -91,36 +95,42 @@ class DE(o):
   Build Frontier
   """
   def build(i):
-    return [ Candidate(i) for _ in i.config.np]
+    return [ Candidate(i) for _ in range(i.config.np)]
 
-  def extrapolate(i):
-    #TODO extrapolate
-    pass
+  def best(i):
+    return sorted(i.frontier)[0]
 
   def run(i):
     lives = i.config.lives
     for _ in range(i.config.max):
       if lives == 0: break
       updated = i.update()
+      print(updated)
       if not updated: lives -= 1
+    return i.best()
 
   def update(i):
     nextGen = []
+    oldBest = i.best()
     for point in i.frontier:
       mutated = i.mutate(point)
-      if (mutated.score > point.score):
+      if mutated > point:
         nextGen.append(mutated)
       else:
         nextGen.append(point)
-      # TODO
+    i.frontier= nextGen
+    newBest = i.best()
+    if newBest > oldBest:
+      return True
+    return False
 
 
   def mutate(i, point, prec=3):
     mutated = Candidate(i, point)
     two, three, four = i.threeMore(point)
     obj2, obj3, obj4 = two.objectives, three.objectives, four.objectives
-    cf,f = i.settings.cf, i.settings.f
-    for i, (key, low, high) in enumerate(zip(i.settings.params,i.settings.max, i.settings.min)):
+    cf,f = i.config.cf, i.config.f
+    for _, (key, low, high) in enumerate(zip(i.settings.params,i.settings.min, i.settings.max)):
       if random.random() > cf :
         if isinstance(low, float):
           extrapolated = trim(round(obj2[key] + f*(obj3[key] - obj4[key]), prec), low, high)
@@ -128,7 +138,7 @@ class DE(o):
           extrapolated  = bool(random.getrandbits(1))
         elif isinstance(low, int):
           extrapolated =  trim(int(round(random.uniform(low, high))), low, high)
-        mutated.objectives.update(key, extrapolated)
+        mutated.objectives.has()[key] = extrapolated
     mutated.evaluate(i)
     return mutated
 
