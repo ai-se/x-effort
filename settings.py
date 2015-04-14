@@ -72,15 +72,54 @@ def configs(**d):
     depthMax  = 10,     # max tree depth
     wriggle   = 0.2,    # min difference of 'better'
     prune     = True,   # If pruning should be performed
+    neighbors = 2
   ).update(**d)
 
 
 def peekSettings():
     return o(
         params   = ["minSize", "depthMin", "depthMax", "wriggle", "prune", "neighbors"],
-        defaults = [8,         2,          10,          0.2,       True,     2],
+        defaults = o(
+          minSize   = 8,      # min leaf size
+          depthMin  = 2,      # no pruning till this depth
+          depthMax  = 10,     # max tree depth
+          wriggle   = 0.2,    # min difference of 'better'
+          prune     = True,   # If pruning should be performed
+          neighbors = 2
+        ),
         max      = [30,        6,          30,          0.5,       True,     6],
         min      = [2,         2,          4,          0.01,       False,    2]
+    )
+
+def teakSettings():
+  return o(
+        params   = ["minSize", "depthMin", "depthMax", "wriggle", "prune",
+                    "neighbors", "par_var_ftr", "max_var_ftr"],
+        defaults = o(
+          minSize   = 8,      # min leaf size
+          depthMin  = 2,      # no pruning till this depth
+          depthMax  = 10,     # max tree depth
+          wriggle   = 0.2,    # min difference of 'better'
+          prune     = True,   # If pruning should be performed
+          neighbors = 2,      # Number of neighbors to consider while clustering
+          par_var_ftr=1.25,   # Factor to multiply parent variance
+          max_var_ftr=0.75,   # Factor to multiply max variance
+        ),
+        max      = [30,        6,          30,          0.5,       True,     6,     2.0,       2.0],
+        min      = [2,         2,          4,          0.01,       False,    2,     0.5,       0.5]
+    )
+
+def cartSettings():
+  return o(
+        params   = ["max_features", "max_depth", "min_samples_split", "min_samples_leaf"],
+        defaults = o(
+          max_features = None,      # max number of features in a leaf
+          max_depth  = None,        # Max depth of tree
+          min_samples_split  = 2,   # Minimum Samples required for split
+          min_samples_leaf   = 1    # Min Samples Required to be in leaf node
+        ),
+        max      = [1.0,       50,         20,        20],
+        min      = [0.01,      1,          2,         1]
     )
 
 The=None

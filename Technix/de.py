@@ -12,7 +12,9 @@ import random
 from lib import *
 from settings import *
 from where2 import *
+from Technix.TEAK import *
 from Models.nasa93 import nasa93
+MODEL = nasa93
 
 def DE_settings(**d):
     return o(
@@ -50,7 +52,7 @@ def MRE(model, inp, classifier, predictor):
     desired = effort(model, row)
     pred = predictor(model, classifier, row)
     mre += abs(desired - pred)/desired
-  return mre.cache.has().median
+  return mre
 
 
 class Candidate(o):
@@ -73,7 +75,7 @@ class Candidate(o):
 
   def evaluate(i, de):
     classifier = de.builder(de.model, i.objectives, de.train)
-    i.score = MRE(de.model, de.tune, classifier, de.predictor)
+    i.score = MRE(de.model, de.tune, classifier, de.predictor).cache.has().median
 
   def __gt__(i, j):
     return i.score > j.score
@@ -81,13 +83,13 @@ class Candidate(o):
 class DE(o):
   "DE"
   id = 0
-  def __init__(i, model, builder, predictor, settings):
+  def __init__(i, model, builder, predictor, settings, inp):
     i.id = DE.id = DE.id+1
     i.model = model
     i.builder = builder
     i.predictor = predictor
     i.settings = settings
-    i.train, i.tune, i.test = split_data(model._rows)
+    i.train, i.tune, i.test = inp
     i.config = DE_settings()
     i.frontier = i.build()
 
@@ -105,7 +107,6 @@ class DE(o):
     for _ in range(i.config.max):
       if lives == 0: break
       updated = i.update()
-      print(updated)
       if not updated: lives -= 1
     return i.best()
 
@@ -151,3 +152,7 @@ class DE(o):
           seen += [point.id]
           return point
     return oneMore(seen), oneMore(seen), oneMore(seen)
+
+
+
+

@@ -346,7 +346,7 @@ def launchWhere2(m, settings=None, rows=None, verbose=False):
   The=defaults()
   The.what.update(verbose = verbose)
   if settings is None:
-    m.settings = configs(
+    m.settings = peekSettings().defaults.update(
                minSize = int(len(rows)**0.5),
                prune   = False)
   else :
