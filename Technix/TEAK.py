@@ -13,7 +13,7 @@ def leafTeak(m,one,node):
     a = dist(m,one,west)
     b = dist(m,one,east)
     c = dist(m,west,east)
-    x = (a*a + c*c - b*b)/(2*c)
+    x = (a*a + c*c - b*b)/(2*c+0.000001)
     if (x<mid_cos):
       return leafTeak(m,one,node._kids[0])
     else:
