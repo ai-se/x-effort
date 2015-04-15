@@ -53,11 +53,12 @@ def launchTeak(d=nasa93(), settings=None, rows=None, verbose=False):
   all_leaves = []
   for l, level in leaves(root_node):
     all_leaves.append(l)
-    
-  for l in all_leaves:
-    if l.variance > settings.par_var_ftr*l._up.variance \
-            or l.variance > settings.max_var_ftr*d.max_variance:
-      truncated_rows += l.val
+
+  if len(all_leaves) > 1:
+    for l in all_leaves:
+      if l.variance > settings.par_var_ftr*l._up.variance \
+              or l.variance > settings.max_var_ftr*d.max_variance:
+        truncated_rows += l.val
       
   new_rows = [row for row in root_node.val if row not in truncated_rows]
   

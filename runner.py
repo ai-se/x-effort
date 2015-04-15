@@ -73,7 +73,7 @@ def run_model(model=MODEL, cross_val=3):
   print('####'+str(len(mdl._rows)) + " data points,  " + str(len(mdl.indep)) + " attributes")
   all_rows = mdl._rows
   for _ in range(cross_val):
-    #say(".")
+    say(".")
     inp = split_data(all_rows)
     t_err, err = TEAK_DE(model, inp)
     errors["TEAK"] += err; errors["t_TEAK"] += t_err
@@ -95,8 +95,7 @@ def run_model(model=MODEL, cross_val=3):
   print("```");print("")
 
 def run_all(cross_val):
-  models = [nasa93, coc81.coc81, Mystery1.Mystery1, Mystery2.Mystery2,
-           albrecht.albrecht, kemerer.kemerer, kitchenham.kitchenham,
+  models = [kemerer.kemerer, kitchenham.kitchenham,
            maxwell.maxwell, miyazaki.miyazaki, telecom.telecom, usp05.usp05,
            china.china, cosmic.cosmic, isbsg10.isbsg10]
   for mdl in models:
@@ -104,4 +103,7 @@ def run_all(cross_val):
 
 
 if __name__=="__main__":
+  start = time.time()
   run_all(21)
+  #run_model(kemerer.kemerer,21)
+  print(time.time() - start)
