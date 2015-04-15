@@ -1,9 +1,11 @@
+from Models import nasa93
 from Technix.de import *
 from Technix.TEAK import *
 from Technix.CART import *
 from Technix.sk import rdivDemo
+import time
 
-MODEL = nasa93
+
 
 def PEEKING_DE(model=MODEL, inp=None):
   mdl = model()
@@ -56,7 +58,7 @@ def CART_DE(model=MODEL, inp=None):
   untuned = mre.cache.has().median
   return tuned, untuned
 
-def _run(model=MODEL, cross_val=21):
+def run_model(model=MODEL, cross_val=3):
   random.seed(1)
   errors = {
     "Peek" : N(),
@@ -66,9 +68,12 @@ def _run(model=MODEL, cross_val=21):
     "CART" : N(),
     "t_CART"  : N()
   }
-  all_rows = model()._rows
+  mdl=model()
+  print('###'+model.__name__.upper())
+  print('####'+str(len(mdl._rows)) + " data points,  " + str(len(mdl.indep)) + " attributes")
+  all_rows = mdl._rows
   for _ in range(cross_val):
-    print(_)
+    #say(".")
     inp = split_data(all_rows)
     t_err, err = TEAK_DE(model, inp)
     errors["TEAK"] += err; errors["t_TEAK"] += t_err
@@ -76,16 +81,27 @@ def _run(model=MODEL, cross_val=21):
     errors["Peek"] += err; errors["t_Peek"] += t_err
     t_err, err = CART_DE(model, inp)
     errors["CART"] += err; errors["t_CART"] += t_err
-  print("Peek", errors["Peek"].cache.all)
-  print("t_Peek", errors["t_Peek"].cache.all)
-  print("TEAK", errors["TEAK"].cache.all)
-  print("t_TEAK", errors["t_TEAK"].cache.all)
-  print("CART", errors["CART"].cache.all)
-  print("t_CART", errors["t_CART"].cache.all)
+  # print("Peek", errors["Peek"].cache.all)
+  # print("t_Peek", errors["t_Peek"].cache.all)
+  # print("TEAK", errors["TEAK"].cache.all)
+  # print("t_TEAK", errors["t_TEAK"].cache.all)
+  # print("CART", errors["CART"].cache.all)
+  # print("t_CART", errors["t_CART"].cache.all)
   skData=[]
   for key, n in errors.items():
     skData.append([key]+n.cache.all)
+  print("```")
   rdivDemo(skData,"cliffs")
+  print("```");print("")
+
+def run_all(cross_val):
+  models = [nasa93, coc81.coc81, Mystery1.Mystery1, Mystery2.Mystery2,
+           albrecht.albrecht, kemerer.kemerer, kitchenham.kitchenham,
+           maxwell.maxwell, miyazaki.miyazaki, telecom.telecom, usp05.usp05,
+           china.china, cosmic.cosmic, isbsg10.isbsg10]
+  for mdl in models:
+    run_model(mdl,21)
+
 
 if __name__=="__main__":
-  _run(nasa93)
+  run_all(21)

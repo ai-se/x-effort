@@ -13,7 +13,7 @@ from lib import *
 from settings import *
 from where2 import *
 from Technix.TEAK import *
-from Models.nasa93 import nasa93
+from Models import nasa93
 MODEL = nasa93
 
 def DE_settings(**d):

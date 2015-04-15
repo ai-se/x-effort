@@ -124,7 +124,9 @@ def third(lst): return lst[2]
 Print without newline:
 
 """
-def say(*lst): print(*lst,end="")
+def say(*lst):
+  print(*lst,end="")
+  sys.stdout.flush()
 """
 
 Print a list of numbers without an excess of decimal places:
