@@ -60,25 +60,30 @@ class Candidate(o):
   def __init__(i, de, cand= None):
     if cand:
       i.id = cand.id
-      i.objectives = cand.objectives
-      i.score = None
+      i.decisions = cand.decisions
+      i.objectives = None
     else :
       i.id = Candidate.id =  Candidate.id+1
       i.generate(de.settings)
       i.evaluate(de)
 
   def generate(i, settings):
-    obj = o()
+    dec = o()
     for index, key in enumerate(settings.params):
-      obj.has()[key] = between(settings.min[index], settings.max[index])
-    i.objectives = obj
+      dec.has()[key] = between(settings.min[index], settings.max[index])
+    i.decisions = dec
 
   def evaluate(i, de):
-    classifier = de.builder(de.model, i.objectives, de.train)
-    i.score = MRE(de.model, de.tune, classifier, de.predictor).cache.has().median
+    classifier = de.builder(de.model, i.decisions, de.train)
+    results = MRE(de.model, de.tune, classifier, de.predictor).cache.has()
+    i.objectives = [results.median, results.iqr]
 
-  def __gt__(i, j):
-    return i.score > j.score
+  def __lt__(i, j):
+    for index in range(0, len(i.objectives)):
+      if i.objectives[index] > j.objectives[index]:
+        return False
+    return True
+
 
 class DE(o):
   "DE"
@@ -129,7 +134,7 @@ class DE(o):
   def mutate(i, point, prec=3):
     mutated = Candidate(i, point)
     two, three, four = i.threeMore(point)
-    obj2, obj3, obj4 = two.objectives, three.objectives, four.objectives
+    obj2, obj3, obj4 = two.decisions, three.decisions, four.decisions
     cf,f = i.config.cf, i.config.f
     for _, (key, low, high) in enumerate(zip(i.settings.params,i.settings.min, i.settings.max)):
       if random.random() > cf :
@@ -139,7 +144,7 @@ class DE(o):
           extrapolated  = bool(random.getrandbits(1))
         elif isinstance(low, int):
           extrapolated =  trim(int(round(random.uniform(low, high))), low, high)
-        mutated.objectives.has()[key] = extrapolated
+        mutated.decisions.has()[key] = extrapolated
     mutated.evaluate(i)
     return mutated
 
@@ -152,7 +157,3 @@ class DE(o):
           seen += [point.id]
           return point
     return oneMore(seen), oneMore(seen), oneMore(seen)
-
-
-
-

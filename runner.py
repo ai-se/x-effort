@@ -15,7 +15,7 @@ def PEEKING_DE(model=MODEL, inp=None):
   de = DE(model(), launchWhere2, predictPEEKING, peekSettings(), inp)
   best = de.run()
   #Tuned
-  classifier = de.builder(de.model, best.objectives, train)
+  classifier = de.builder(de.model, best.decisions, train)
   mre = MRE(de.model, test, classifier, de.predictor)
   tuned = mre.cache.has().median
   #Untuned
@@ -32,7 +32,7 @@ def TEAK_DE(model=MODEL, inp=None):
   de = DE(model(), launchTeak, predictTeak, teakSettings(), inp)
   best = de.run()
   #Tuned
-  classifier = de.builder(de.model, best.objectives, train)
+  classifier = de.builder(de.model, best.decisions, train)
   mre = MRE(de.model, test, classifier, de.predictor)
   tuned = mre.cache.has().median
   #Untuned
@@ -49,7 +49,7 @@ def CART_DE(model=MODEL, inp=None):
   de = DE(model(), launchTeak, predictTeak, teakSettings(), inp)
   best = de.run()
   #Tuned
-  classifier = de.builder(de.model, best.objectives, train)
+  classifier = de.builder(de.model, best.decisions, train)
   mre = MRE(de.model, test, classifier, de.predictor)
   tuned = mre.cache.has().median
   #Untuned
@@ -97,7 +97,7 @@ def run_model(model=MODEL, cross_val=3):
 def run_all(cross_val):
   models = [kemerer.kemerer, kitchenham.kitchenham,
            maxwell.maxwell, miyazaki.miyazaki, telecom.telecom, usp05.usp05,
-           china.china, cosmic.cosmic, isbsg10.isbsg10]
+           cosmic.cosmic, isbsg10.isbsg10]
   for mdl in models:
     run_model(mdl,21)
 
@@ -105,5 +105,5 @@ def run_all(cross_val):
 if __name__=="__main__":
   start = time.time()
   run_all(21)
-  #run_model(kemerer.kemerer,21)
+  #run_model(Mystery1.Mystery1, 21)
   print(time.time() - start)
