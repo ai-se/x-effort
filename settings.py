@@ -122,4 +122,21 @@ def cartSettings():
         min      = [0.01,      1,          2,         1]
     )
 
+def svmSettings():
+  return o(
+        params   = ["C", "kernel", "degree", "gamma", "coef0", "probability", "shrinking", "tol"],
+        defaults = o(
+          C = 1.0,      # Penalty parameter C of the error term
+          kernel  = "rbf",        # Specifies the kernel type to be used in the algorithm.
+          degree  = 3,   # Degree of the polynomial kernel function (poly)
+          gamma   = 0.0,    # Kernel coefficient for rbf, poly and sigmoid
+          coef0 = 0.0,     # Independent term in kernel function
+          probability = False, # Whether to enable probability estimates
+          shrinking = True,   # Whether to use the shrinking heuristic
+          tol = 0.001,        # Tolerance for stopping criterion.
+        ),
+        max      = [1.5,  ["linear", "poly", "rbf", "sigmoid"], 5,  1.0,  1.0, True,  True,  0.01],
+        min      = [0.5,  ["linear", "poly", "rbf", "sigmoid"], 2,  0.0,  0.0, False, False, 0.0001]
+  )
+
 The=None

@@ -36,13 +36,15 @@ def split_data(rows):
 def trim(one, low, high):
   return max(low, min(one, high))
 
-def between(low, high, prec=3):
+def between(low, high, prec=6):
   if isinstance(low, float):
     return round(random.uniform(low, high), prec)
   elif isinstance(low, bool):
     return bool(random.getrandbits(1))
   elif isinstance(low, int):
     return int(round(random.uniform(low, high)))
+  elif isinstance(low, list):
+    return random.choice(low)
   return None
 
 
@@ -83,7 +85,6 @@ class Candidate(o):
       if i.objectives[index] > j.objectives[index]:
         return False
     return True
-
 
 class DE(o):
   "DE"
@@ -138,7 +139,9 @@ class DE(o):
     cf,f = i.config.cf, i.config.f
     for _, (key, low, high) in enumerate(zip(i.settings.params,i.settings.min, i.settings.max)):
       if random.random() > cf :
-        if isinstance(low, float):
+        if isinstance(low, list):
+          extrapolated = random.choice(low)
+        elif isinstance(low, float):
           extrapolated = trim(round(obj2[key] + f*(obj3[key] - obj4[key]), prec), low, high)
         elif isinstance(low, bool):
           extrapolated  = bool(random.getrandbits(1))

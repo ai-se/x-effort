@@ -438,7 +438,7 @@ def predictPEEKING(model, tree, test):
   if len(nearestN) == 1 :
     return effort(model, nearestN[0][1])
   else :
-    testEffort, sumWt = 0,0
+    testEffort, sumWt = eps,eps
     for distance, row in nearestN[:k]:
       testEffort += effort(model, row)/(distance+eps)
       sumWt += 1/(distance + eps)

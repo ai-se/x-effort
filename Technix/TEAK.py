@@ -33,7 +33,7 @@ def predictTeak(model, tree, test):
   if len(nearestN) == 1 :
     return effort(model, nearestN[0][1])
   else :
-    testEffort, sumWt = 0,0
+    testEffort, sumWt = eps, eps
     for distance, row in nearestN[:k]:
       testEffort += effort(model, row)/(distance+eps)
       sumWt += 1/(distance + eps)
@@ -61,7 +61,8 @@ def launchTeak(d=nasa93(), settings=None, rows=None, verbose=False):
         truncated_rows += l.val
       
   new_rows = [row for row in root_node.val if row not in truncated_rows]
-  
+  if len(new_rows) == 0:
+    return root_node
   return launchWhere2(d, settings, new_rows, verbose)
   
 
