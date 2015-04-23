@@ -104,12 +104,6 @@ def run_model(model=MODEL, cross_val=3):
     errors["CART"] += err; errors["t_CART"] += t_err
     t_err, err = SVM_DE(model, inp)
     errors["SVM"] += err; errors["t_SVM"] += t_err
-  # print("Peek", errors["Peek"].cache.all)
-  # print("t_Peek", errors["t_Peek"].cache.all)
-  # print("TEAK", errors["TEAK"].cache.all)
-  # print("t_TEAK", errors["t_TEAK"].cache.all)
-  # print("CART", errors["CART"].cache.all)
-  # print("t_CART", errors["t_CART"].cache.all)
   skData=[]
   for key, n in errors.items():
     skData.append([key]+n.cache.all)
@@ -117,8 +111,7 @@ def run_model(model=MODEL, cross_val=3):
   print("```");print("")
 
 def run_all(cross_val):
-  models = [kitchenham.kitchenham,
-           maxwell.maxwell, miyazaki.miyazaki, telecom.telecom, usp05.usp05,
+  models = [
            cosmic.cosmic, isbsg10.isbsg10]
   for mdl in models:
     run_model(mdl,21)
@@ -186,6 +179,6 @@ def untuned_runner(model=MODEL, cross_val=21):
 if __name__=="__main__":
   start = time.time()
   run_all(21)
-  #testRunner(kemerer.kemerer, 21)
-  #run_model(kemerer.kemerer, 21)
+  # testRunner(kemerer.kemerer, 21)
+  # run_model(kemerer.kemerer, 21)
   print(time.time() - start)
