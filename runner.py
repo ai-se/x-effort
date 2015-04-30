@@ -1,5 +1,6 @@
 from Models import nasa93
 from Technix.de import *
+from where2 import *
 from Technix.TEAK import *
 from Technix.CART import *
 from Technix.SVM import *
@@ -198,5 +199,5 @@ if __name__=="__main__":
   start = time.time()
   run_all(21)
   #testRunner(kemerer.kemerer, 21)
-  run_model(kemerer.kemerer, 21)
+  #run_model(kemerer.kemerer, 21)
   print(time.time() - start)

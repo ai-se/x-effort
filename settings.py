@@ -112,8 +112,8 @@ def cartSettings():
   return o(
         params   = ["max_features", "max_depth", "min_samples_split", "min_samples_leaf"],
         defaults = o(
-          max_features = None,      # max number of features in a leaf
-          max_depth  = None,        # Max depth of tree
+          max_features = 1.0,      # max number of features in a leaf
+          max_depth  = 50,        # Max depth of tree
           min_samples_split  = 2,   # Minimum Samples required for split
           min_samples_leaf   = 1    # Min Samples Required to be in leaf node
         ),

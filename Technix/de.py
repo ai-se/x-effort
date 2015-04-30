@@ -8,11 +8,8 @@
 from __future__ import division,print_function
 import  sys
 sys.dont_write_bytecode = True
-import random
 from lib import *
 from settings import *
-from where2 import *
-from Technix.TEAK import *
 from Models import nasa93
 MODEL = nasa93
 
@@ -21,8 +18,8 @@ def DE_settings(**d):
        max     = 100,  # number of repeats
        # credit to @WeiFoo
        np      = 50,  # number of candidates
-       f       = 0.4, # extrapolate amount
-       cf      = 0.3,  # prob of cross-over
+       f       = 0.5, # extrapolate amount
+       cf      = 0.75,  # prob of cross-over
        lives   = 10
     ).update(**d)
 
@@ -63,21 +60,24 @@ def MRE(model, inp, classifier, predictor):
 
 class Candidate(o):
   id = 0
-  def __init__(i, de, cand= None):
+  def __init__(i, de, cand= None, default=False):
     if cand:
       i.id = cand.id
       i.decisions = cand.decisions
       i.objectives = None
     else :
       i.id = Candidate.id =  Candidate.id+1
-      i.generate(de.settings)
+      i.generate(de.settings, default)
       i.evaluate(de)
 
-  def generate(i, settings):
-    dec = o()
-    for index, key in enumerate(settings.params):
-      dec.has()[key] = between(settings.min[index], settings.max[index])
-    i.decisions = dec
+  def generate(i, settings, default=False):
+    if default :
+      i.decisions = settings.defaults
+    else :
+      dec = o()
+      for index, key in enumerate(settings.params):
+        dec.has()[key] = between(settings.min[index], settings.max[index])
+      i.decisions = dec
 
   def evaluate(i, de):
     classifier = de.builder(de.model, i.decisions, de.train)
@@ -108,7 +108,9 @@ class DE(o):
   Build Frontier
   """
   def build(i):
-    return [ Candidate(i) for _ in range(i.config.np)]
+    canditates = [ Candidate(i) for _ in range(i.config.np - 1)]
+    canditates.append(Candidate(i, default=True))
+    return  canditates
 
   def best(i):
     return sorted(i.frontier)[0]
@@ -138,7 +140,7 @@ class DE(o):
 
 
   def mutate(i, point, prec=3):
-    mutated = Candidate(i, point)
+    mutated = Candidate(i, cand = point)
     two, three, four = i.threeMore(point)
     obj2, obj3, obj4 = two.decisions, three.decisions, four.decisions
     cf,f = i.config.cf, i.config.f
