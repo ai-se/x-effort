@@ -76,8 +76,7 @@ def fss(d):
     elif xpect > maxVal:
       maxVal = xpect
     rank += [(xpect,i)]
-  d.weights = normalize_weights(rank, maxVal, minVal)
-  return d
+  return normalize_weights(rank, maxVal, minVal)
 
 def normalize_weights(rank, maxVal, minVal):
   # sort based on columns

@@ -288,7 +288,7 @@ def data(indep=[], less=[], more=[], _rows=[],
     m.lo[x] = all[0]
     m.hi[x] = all[-1]
   if weighFeature :
-    sdivUtil.fss(m)
+    m.weights = sdivUtil.fss(m)
   return m
 
 """

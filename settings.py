@@ -59,7 +59,6 @@ def defaults(**d):
       what=o(
             b4      = '|.. ', # indent string
             verbose = False,  # show trace info?
-            goal    = lambda m,x : scores(m,x)
       ),
       seed    = 1,
       cache   = o(size=128)
@@ -137,6 +136,18 @@ def svmSettings():
         ),
         max      = [1.5,  ["linear", "poly", "rbf", "sigmoid"], 5,  1.0,  1.0, True,  True,  0.01],
         min      = [0.5,  ["linear", "poly", "rbf", "sigmoid"], 2,  0.0,  0.0, False, False, 0.0001]
+  )
+
+def knnSettings():
+  return o(
+        params = ["distance", "adaption", "k"],
+        defaults = o(
+          distance = "euclid",
+          adaption = "median",
+          k = 3
+        ),
+        max = [["euclid", "weighted", "maximal"], ["median", "mean", "average_weight"], 1],
+        min = [["euclid", "weighted", "maximal"], ["median", "mean", "average_weight"], 10]
   )
 
 The=None

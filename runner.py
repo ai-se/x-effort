@@ -3,6 +3,7 @@ from Technix.de import *
 from Technix.TEAK import *
 from Technix.CART import *
 from Technix.SVM import *
+from Technix.KNN import *
 from Technix.sk import rdivDemo
 import time
 
@@ -11,7 +12,7 @@ import time
 def PEEKING_DE(model=MODEL, inp=None):
   mdl = model()
   if inp is None:
-    inp = split_data(mdl._rows)
+    inp = split_data(mdl._rows)[0]
   train, tune, test = inp
   de = DE(model(), launchWhere2, predictPEEKING, peekSettings(), inp)
   best = de.run()
@@ -28,7 +29,7 @@ def PEEKING_DE(model=MODEL, inp=None):
 def TEAK_DE(model=MODEL, inp=None):
   mdl = model()
   if inp is None:
-    inp = split_data(mdl._rows)
+    inp = split_data(mdl._rows)[0]
   train, tune, test = inp
   de = DE(model(), launchTeak, predictTeak, teakSettings(), inp)
   best = de.run()
@@ -45,7 +46,7 @@ def TEAK_DE(model=MODEL, inp=None):
 def CART_DE(model=MODEL, inp=None):
   mdl=model()
   if inp is None:
-    inp = split_data(mdl._rows)
+    inp = split_data(mdl._rows)[0]
   train, tune, test = inp
   de = DE(model(), launchCART, predictCART, cartSettings(), inp)
   best = de.run()
@@ -62,7 +63,7 @@ def CART_DE(model=MODEL, inp=None):
 def SVM_DE(model=MODEL, inp=None):
   mdl=model()
   if inp is None:
-    inp = split_data(mdl._rows)
+    inp = split_data(mdl._rows)[0]
   train, tune, test = inp
   de = DE(model(), launchSVM, predictSVM, svmSettings(), inp)
   best = de.run()
@@ -76,8 +77,26 @@ def SVM_DE(model=MODEL, inp=None):
   untuned = mre.cache.has().median
   return tuned, untuned
 
+def KNN_DE(model=MODEL, inp=None):
+  mdl=model()
+  if inp is None:
+    inp = split_data(mdl._rows)[0]
+  train, tune, test = inp
+  de = DE(model(), launchKNN, predictKNN, knnSettings(), inp)
+  best = de.run()
+  #Tuned
+  classifier = de.builder(de.model, best.decisions, train)
+  mre = MRE(de.model, test, classifier, de.predictor)
+  tuned = mre.cache.has().median
+  #Untuned
+  classifier = de.builder(de.model, settings=None, rows=train)
+  mre = MRE(de.model, test, classifier, de.predictor)
+  untuned = mre.cache.has().median
+  return tuned, untuned
+
+
+
 def run_model(model=MODEL, cross_val=3):
-  random.seed(1)
   errors = {
     "Peek" : N(),
     "t_Peek" : N(),
@@ -86,16 +105,17 @@ def run_model(model=MODEL, cross_val=3):
     "CART" : N(),
     "t_CART"  : N(),
     "SVM" : N(),
-    "t_SVM" : N()
+    "t_SVM" : N(),
+    "knn" : N(),
+    "t_knn" : N()
   }
   mdl=model()
   print('###'+model.__name__.upper())
   print('####'+str(len(mdl._rows)) + " data points,  " + str(len(mdl.indep)) + " attributes")
   all_rows = mdl._rows
   print("```")
-  for _ in range(cross_val):
+  for inp in split_data(all_rows, cross_val):
     say(".")
-    inp = split_data(all_rows)
     t_err, err = TEAK_DE(model, inp)
     errors["TEAK"] += err; errors["t_TEAK"] += t_err
     t_err, err = PEEKING_DE(model, inp)
@@ -104,6 +124,8 @@ def run_model(model=MODEL, cross_val=3):
     errors["CART"] += err; errors["t_CART"] += t_err
     t_err, err = SVM_DE(model, inp)
     errors["SVM"] += err; errors["t_SVM"] += t_err
+    t_err, err = KNN_DE(model, inp)
+    errors["knn"] += err; errors["t_knn"] += t_err
   skData=[]
   for key, n in errors.items():
     skData.append([key]+n.cache.all)
@@ -111,28 +133,26 @@ def run_model(model=MODEL, cross_val=3):
   print("```");print("")
 
 def run_all(cross_val):
-  models = [
-           cosmic.cosmic, isbsg10.isbsg10]
+  models = [albrecht.albrecht, kemerer.kemerer, maxwell.maxwell,
+           telecom.telecom, cosmic.cosmic, isbsg10.isbsg10]
   for mdl in models:
     run_model(mdl,21)
 
 def testRunner(model=MODEL, cross_val=21):
-  random.seed(1)
   errors = {
-    "SVM" : N(),
-    "t_SVM" : N(),
+    "knn" : N(),
+    "t_knn" : N(),
   }
   mdl=model()
   print('###'+model.__name__.upper())
   print('####'+str(len(mdl._rows)) + " data points,  " + str(len(mdl.indep)) + " attributes")
   print("```")
   all_rows = mdl._rows
-  for _ in range(cross_val):
+  for inp in split_data(all_rows, cross_val):
     say(".")
-    inp = split_data(all_rows)
     train,tune,test = inp
     t_err, err = SVM_DE(model, inp)
-    errors["SVM"] += err; errors["t_SVM"] += t_err
+    errors["knn"] += err; errors["t_knn"] += t_err
   skData=[]
   for key, n in errors.items():
     skData.append([key]+n.cache.all)
@@ -140,7 +160,6 @@ def testRunner(model=MODEL, cross_val=21):
   print("```");print("")
 
 def untuned_runner(model=MODEL, cross_val=21):
-  random.seed(1)
   errors = {
     "Peek" : N(),
     "TEAK" : N(),
@@ -151,9 +170,8 @@ def untuned_runner(model=MODEL, cross_val=21):
   print('####'+str(len(mdl._rows)) + " data points,  " + str(len(mdl.indep)) + " attributes")
   all_rows = mdl._rows
   print("```")
-  for _ in range(cross_val):
+  for inp in split_data(all_rows, cross_val):
     say(".")
-    inp = split_data(all_rows)
     train,tune,test = inp
 
     de = DE(model(), launchWhere2, predictPEEKING, peekSettings(), inp)
@@ -179,6 +197,6 @@ def untuned_runner(model=MODEL, cross_val=21):
 if __name__=="__main__":
   start = time.time()
   run_all(21)
-  # testRunner(kemerer.kemerer, 21)
-  # run_model(kemerer.kemerer, 21)
+  #testRunner(kemerer.kemerer, 21)
+  run_model(kemerer.kemerer, 21)
   print(time.time() - start)

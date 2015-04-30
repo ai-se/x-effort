@@ -26,11 +26,15 @@ def DE_settings(**d):
        lives   = 10
     ).update(**d)
 
-def split_data(rows):
+def split_data(rows, cross_val):
+  random.seed(1)
+  splits = []
+  for _ in range(cross_val):
     random.shuffle(rows)
     size = len(rows)
             #Train          #Tune                   #Test
-    return rows[:size//3], rows[size//3:-size//3], rows[-size//3:]
+    splits.append((rows[:size//3], rows[size//3:-size//3], rows[-size//3:]))
+  return splits
 
 
 def trim(one, low, high):
@@ -90,6 +94,7 @@ class DE(o):
   "DE"
   id = 0
   def __init__(i, model, builder, predictor, settings, inp):
+    random.seed(1)
     i.id = DE.id = DE.id+1
     i.model = model
     i.builder = builder
