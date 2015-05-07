@@ -15,11 +15,12 @@
 4 ,           t_CART ,   61 ,   44 (       --*--   |              ), 0.42,  0.48,  0.61,  0.75,  0.94
 ```
 
-#### Average evals for knn 4604.76190476
-#### Average evals for Peek 5000.0
-#### Average evals for SVM 5000.0
-#### Average evals for CART 5000.0
-#### Average evals for TEAK 5000.0
+- Average evals for knn 4604.76190476
+- Average evals for Peek 5000.0
+- Average evals for SVM 5000.0
+- Average evals for CART 5000.0
+- Average evals for TEAK 5000.0
+
 ###KEMERER
 ####15 data points,  6 attributes
 ```
@@ -37,11 +38,12 @@
 4 ,              SVM ,  198 ,  270 (   ----*---    |              ), 0.55,  0.83,  1.98,  3.00,  7.50
 ```
 
-#### Average evals for knn 5000.0
-#### Average evals for Peek 5000.0
-#### Average evals for SVM 5000.0
-#### Average evals for CART 5000.0
-#### Average evals for TEAK 5000.0
+- Average evals for knn 5000.0
+- Average evals for Peek 5000.0
+- Average evals for SVM 5000.0
+- Average evals for CART 5000.0
+- Average evals for TEAK 5000.0
+
 ###MAXWELL
 ####62 data points,  26 attributes
 ```
@@ -59,11 +61,12 @@
 4 ,           t_CART ,   86 ,    6 (           *   |              ), 0.80,  0.83,  0.86,  0.87,  0.88
 ```
 
-#### Average evals for knn 4566.66666667
-#### Average evals for Peek 4559.52380952
-#### Average evals for SVM 5000.0
-#### Average evals for CART 5000.0
-#### Average evals for TEAK 4607.14285714
+- Average evals for knn 4566.66666667
+- Average evals for Peek 4559.52380952
+- Average evals for SVM 5000.0
+- Average evals for CART 5000.0
+- Average evals for TEAK 4607.14285714
+
 ###TELECOM
 ####18 data points,  2 attributes
 ```
@@ -81,11 +84,12 @@
 4 ,           t_CART ,   55 ,   27 (       -*      |              ), 0.39,  0.52,  0.55,  0.58,  0.80
 ```
 
-#### Average evals for knn 5000.0
-#### Average evals for Peek 4909.52380952
-#### Average evals for SVM 5000.0
-#### Average evals for CART 5000.0
-#### Average evals for TEAK 4971.42857143
+- Average evals for knn 5000.0
+- Average evals for Peek 4909.52380952
+- Average evals for SVM 5000.0
+- Average evals for CART 5000.0
+- Average evals for TEAK 4971.42857143
+
 ###COSMIC
 ####42 data points,  10 attributes
 ```
@@ -103,11 +107,12 @@
 4 ,           t_CART ,   82 ,   18 (               |*             ), 0.58,  0.76,  0.82,  0.89,  0.95
 ```
 
-#### Average evals for knn 4304.76190476
-#### Average evals for Peek 4626.19047619
-#### Average evals for SVM 5000.0
-#### Average evals for CART 5000.0
-#### Average evals for TEAK 5000.0
+- Average evals for knn 4304.76190476
+- Average evals for Peek 4626.19047619
+- Average evals for SVM 5000.0
+- Average evals for CART 5000.0
+- Average evals for TEAK 5000.0
+
 ###ISBSG10
 ####37 data points,  11 attributes
 ```
@@ -125,9 +130,10 @@
 2 ,           t_CART ,   94 ,    5 (     *         |              ), 0.83,  0.89,  0.94,  0.94,  0.95
 ```
 
-#### Average evals for knn 4821.42857143
-#### Average evals for Peek 5000.0
-#### Average evals for SVM 5000.0
-#### Average evals for CART 5000.0
-#### Average evals for TEAK 5000.0
-14362.6723161
+- Average evals for knn 4821.42857143
+- Average evals for Peek 5000.0
+- Average evals for SVM 5000.0
+- Average evals for CART 5000.0
+- Average evals for TEAK 5000.0
+
+####Time taken = 14362.6723161
