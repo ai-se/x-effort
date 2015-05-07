@@ -7,6 +7,7 @@
 """
 from __future__ import division,print_function
 import  sys
+
 sys.dont_write_bytecode = True
 from lib import *
 from settings import *
@@ -14,14 +15,21 @@ from Models import nasa93
 MODEL = nasa93
 
 def DE_settings(**d):
+    # return o(
+    #    max     = 100,  # number of repeats
+    #    np      = 50,  # number of candidates
+    #    f       = 0.5, # extrapolate amount
+    #    cf      = 0.75,  # prob of cross-over
+    #    lives   = 5
+    # ).update(**d)
     return o(
-       max     = 100,  # number of repeats
-       # credit to @WeiFoo
-       np      = 50,  # number of candidates
-       f       = 0.5, # extrapolate amount
-       cf      = 0.75,  # prob of cross-over
-       lives   = 10
+       max     = 1000,  # number of repeats
+       np      = 10,  # number of candidates
+       f       = 0.75, # extrapolate amount
+       cf      = 0.3,  # prob of cross-over
+       lives   = 5
     ).update(**d)
+
 
 def split_data(rows, cross_val):
   random.seed(1)
@@ -117,11 +125,13 @@ class DE(o):
 
   def run(i):
     lives = i.config.lives
+    evals = 0
     for _ in range(i.config.max):
       if lives == 0: break
       updated = i.update()
+      evals += len(i.frontier)
       if not updated: lives -= 1
-    return i.best()
+    return i.best(),evals
 
   def update(i):
     nextGen = []

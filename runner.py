@@ -6,6 +6,7 @@ from Technix.CART import *
 from Technix.SVM import *
 from Technix.KNN import *
 from Technix.sk import rdivDemo
+from numpy import mean
 import time
 
 
@@ -16,7 +17,7 @@ def PEEKING_DE(model=MODEL, inp=None):
     inp = split_data(mdl._rows)[0]
   train, tune, test = inp
   de = DE(model(), launchWhere2, predictPEEKING, peekSettings(), inp)
-  best = de.run()
+  best, runs = de.run()
   #Tuned
   classifier = de.builder(de.model, best.decisions, train)
   mre = MRE(de.model, test, classifier, de.predictor)
@@ -25,7 +26,7 @@ def PEEKING_DE(model=MODEL, inp=None):
   classifier = de.builder(de.model, settings=None, rows=train)
   mre = MRE(de.model, test, classifier, de.predictor)
   untuned = mre.cache.has().median
-  return tuned, untuned
+  return tuned, untuned, runs
 
 def TEAK_DE(model=MODEL, inp=None):
   mdl = model()
@@ -33,7 +34,7 @@ def TEAK_DE(model=MODEL, inp=None):
     inp = split_data(mdl._rows)[0]
   train, tune, test = inp
   de = DE(model(), launchTeak, predictTeak, teakSettings(), inp)
-  best = de.run()
+  best, runs = de.run()
   #Tuned
   classifier = de.builder(de.model, best.decisions, train)
   mre = MRE(de.model, test, classifier, de.predictor)
@@ -42,7 +43,7 @@ def TEAK_DE(model=MODEL, inp=None):
   classifier = de.builder(de.model, settings=None, rows=train)
   mre = MRE(de.model, test, classifier, de.predictor)
   untuned = mre.cache.has().median
-  return tuned, untuned
+  return tuned, untuned, runs
 
 def CART_DE(model=MODEL, inp=None):
   mdl=model()
@@ -50,7 +51,7 @@ def CART_DE(model=MODEL, inp=None):
     inp = split_data(mdl._rows)[0]
   train, tune, test = inp
   de = DE(model(), launchCART, predictCART, cartSettings(), inp)
-  best = de.run()
+  best, runs = de.run()
   #Tuned
   classifier = de.builder(de.model, best.decisions, train)
   mre = MRE(de.model, test, classifier, de.predictor)
@@ -59,7 +60,7 @@ def CART_DE(model=MODEL, inp=None):
   classifier = de.builder(de.model, settings=None, rows=train)
   mre = MRE(de.model, test, classifier, de.predictor)
   untuned = mre.cache.has().median
-  return tuned, untuned
+  return tuned, untuned, runs
 
 def SVM_DE(model=MODEL, inp=None):
   mdl=model()
@@ -67,7 +68,7 @@ def SVM_DE(model=MODEL, inp=None):
     inp = split_data(mdl._rows)[0]
   train, tune, test = inp
   de = DE(model(), launchSVM, predictSVM, svmSettings(), inp)
-  best = de.run()
+  best, runs = de.run()
   #Tuned
   classifier = de.builder(de.model, best.decisions, train)
   mre = MRE(de.model, test, classifier, de.predictor)
@@ -76,7 +77,7 @@ def SVM_DE(model=MODEL, inp=None):
   classifier = de.builder(de.model, settings=None, rows=train)
   mre = MRE(de.model, test, classifier, de.predictor)
   untuned = mre.cache.has().median
-  return tuned, untuned
+  return tuned, untuned, runs
 
 def KNN_DE(model=MODEL, inp=None):
   mdl=model()
@@ -84,7 +85,7 @@ def KNN_DE(model=MODEL, inp=None):
     inp = split_data(mdl._rows)[0]
   train, tune, test = inp
   de = DE(model(), launchKNN, predictKNN, knnSettings(), inp)
-  best = de.run()
+  best, runs = de.run()
   #Tuned
   classifier = de.builder(de.model, best.decisions, train)
   mre = MRE(de.model, test, classifier, de.predictor)
@@ -93,7 +94,7 @@ def KNN_DE(model=MODEL, inp=None):
   classifier = de.builder(de.model, settings=None, rows=train)
   mre = MRE(de.model, test, classifier, de.predictor)
   untuned = mre.cache.has().median
-  return tuned, untuned
+  return tuned, untuned, runs
 
 
 
@@ -110,6 +111,13 @@ def run_model(model=MODEL, cross_val=3):
     "knn" : N(),
     "t_knn" : N()
   }
+  runs = {
+    "Peek" : N(),
+    "TEAK" : N(),
+    "SVM" : N(),
+    "CART" : N(),
+    "knn" : N()
+  }
   mdl=model()
   print('###'+model.__name__.upper())
   print('####'+str(len(mdl._rows)) + " data points,  " + str(len(mdl.indep)) + " attributes")
@@ -117,21 +125,23 @@ def run_model(model=MODEL, cross_val=3):
   print("```")
   for inp in split_data(all_rows, cross_val):
     say(".")
-    t_err, err = TEAK_DE(model, inp)
-    errors["TEAK"] += err; errors["t_TEAK"] += t_err
-    t_err, err = PEEKING_DE(model, inp)
-    errors["Peek"] += err; errors["t_Peek"] += t_err
-    t_err, err = CART_DE(model, inp)
-    errors["CART"] += err; errors["t_CART"] += t_err
-    t_err, err = SVM_DE(model, inp)
-    errors["SVM"] += err; errors["t_SVM"] += t_err
-    t_err, err = KNN_DE(model, inp)
-    errors["knn"] += err; errors["t_knn"] += t_err
+    t_err, err, evals = TEAK_DE(model, inp)
+    errors["TEAK"] += err; errors["t_TEAK"] += t_err; runs["TEAK"] += evals
+    t_err, err, evals = PEEKING_DE(model, inp)
+    errors["Peek"] += err; errors["t_Peek"] += t_err; runs["Peek"] += evals
+    t_err, err, evals = CART_DE(model, inp)
+    errors["CART"] += err; errors["t_CART"] += t_err; runs["CART"] += evals
+    t_err, err, evals = SVM_DE(model, inp)
+    errors["SVM"] += err; errors["t_SVM"] += t_err; runs["SVM"] += evals
+    t_err, err, evals = KNN_DE(model, inp)
+    errors["knn"] += err; errors["t_knn"] += t_err; runs["knn"] += evals
   skData=[]
   for key, n in errors.items():
     skData.append([key]+n.cache.all)
   rdivDemo(skData,"cliffs")
   print("```");print("")
+  for key, n in runs.items():
+    print("#### Average evals for "+key + " " + str(mean(n.cache.all)))
 
 def run_all(cross_val):
   models = [albrecht.albrecht, kemerer.kemerer, maxwell.maxwell,
@@ -199,5 +209,5 @@ if __name__=="__main__":
   start = time.time()
   run_all(21)
   #testRunner(kemerer.kemerer, 21)
-  #run_model(kemerer.kemerer, 21)
+  #run_model(kemerer.kemerer, 3)
   print(time.time() - start)
